@@ -6,6 +6,45 @@ import Image
 import cv2
 import shutil
 
+
+picDict = {'0': '0.png',
+           '1': '1.png',
+           '2': '2.png',
+           '3': '3.png',
+           '4': '4.png',
+           '5': '5.png',
+           '6': '6.png',
+           '7': '7.png',
+           '8': '8.png',
+           '9': '9.png',
+           'a': 'a.png',
+           'b': 'b.png',
+           'c': 'c.png',
+           'd': 'd.png',
+           'e': 'e.png',
+           'f': 'f.png',
+           'g': 'g.png',
+           'h': 'h.png',
+           'i': 'i.png',
+           'j': 'j.png',
+           'k': 'k.png',
+           'l': 'l.png',
+           'm': 'm.png',
+           'n': 'n.png',
+           'o': 'o.png',
+           'p': 'p.png',
+           'q': 'q.png',
+           'r': 'r.png',
+           's': 's.png',
+           't': 't.png',
+           'u': 'u.png',
+           'v': 'v.png',
+           'w': 'w.png',
+           'x': 'x.png',
+           'y': 'y.png',
+           'z': 'z.png'
+}
+
 def imgFilter(img, chop):
     width, height = img.size
     data = img.load()
@@ -75,40 +114,44 @@ def imgFilter(img, chop):
             # Skip this sequence we just altered.
             y += total
 
-for i in range(1):
-    time.sleep(1)
-    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
-    time_stamp_jpg = time_stamp + '.jpg'
-    urllib.urlretrieve("http://218.58.65.23/select/checkcode.asp", time_stamp_jpg)
-    shutil.copy(time_stamp_jpg, time_stamp + 'origin.jpg')
 
-    cvImg = cv2.imread(time_stamp_jpg)
-    grayCvImg = cv2.cvtColor(cvImg, cv2.COLOR_RGB2GRAY)
-    cv2.imwrite(time_stamp_jpg, grayCvImg)
 
-    img = Image.open(time_stamp_jpg)
-    imgFilter(img, 0)
-    frame1 = img.crop(((0, 0, 10, 10)))
-    frame1.save(time_stamp + '_1.jpg')
-    frame2 = img.crop(((10, 0, 20, 10)))
-    frame2.save(time_stamp + '_2.jpg')
-    frame3 = img.crop(((20, 0, 30, 10)))
-    frame3.save(time_stamp + '_3.jpg')
-    frame4 = img.crop(((30, 0, 40, 10)))
-    frame4.save(time_stamp + '_4.jpg')
 
+def readPic(image):
+
+    theKey = ''
+    currentMax = 0
+    for key, picName in picDict.iteritems():
+        path = './codepic/'+picName
+        #print key
+        temp = my_image_similarity(image, path)
+        if temp > currentMax:
+            currentMax = temp
+            theKey = key
+    print theKey
+
+
+
+
+
+def my_image_similarity(filepath1, filepath2):
+    list1 = list(Image.open(filepath1).getdata())
+    list2 = list(Image.open(filepath2).getdata())
+    counter = 0;
+    for i in range(100):
+        if list1[i] == list2[i]:
+            counter = counter + 1
+
+    return counter
 
 
 #sudo pip install numpy PIL
 def image_similarity(filepath1, filepath2):
-    from PIL import Image
-    import math
-    import operator
     import numpy
     image1 = Image.open(filepath1)
     image2 = Image.open(filepath2)
-    if image1.size != image2.size or image1.getbands() != image2.getbands():
-        return -1
+    #if image1.size != image2.size or image1.getbands() != image2.getbands():
+    #    return -1
     s = 0
     for band_index, band in enumerate(image1.getbands()):
         m1 = numpy.array([p[band_index] for p in image1.getdata()]).reshape(*image1.size)
@@ -118,12 +161,11 @@ def image_similarity(filepath1, filepath2):
 
 #sudo pip install PIL
 def pil_image_similarity(filepath1, filepath2):
-    from PIL import Image
     import math
     import operator
 
-    image1 = Image.open(filepath1)
-    image2 = Image.open(filepath2)
+    image1 = Image.open(filepath1).convert('L').point(lambda i: i > 128 and 255)
+    image2 = Image.open(filepath2).convert('L').point(lambda i: i > 128 and 255)
 
     h1 = image1.histogram()
     h2 = image2.histogram()
@@ -150,3 +192,33 @@ def numpy_image_similarity(filepath1, filepath2):
     res = dot(a / a_norm, b / b_norm)
     return res
 
+for i in range(10):
+    time.sleep(1)
+    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
+    time_stamp_jpg = time_stamp + '.jpg'
+    urllib.urlretrieve("http://218.58.65.23/select/checkcode.asp", time_stamp_jpg)
+    shutil.copy(time_stamp_jpg, time_stamp + 'origin.png')
+
+    #cvImg = cv2.imread(time_stamp_jpg)
+    #grayCvImg = cv2.cvtColor(cvImg, cv2.COLOR_RGB2GRAY)
+    #cv2.imwrite(time_stamp_jpg, grayCvImg)
+
+
+
+    img = Image.open(time_stamp_jpg)
+    grayImg = img.convert('L').point(lambda i: i > 128 and 255)
+    grayImg.save(time_stamp_jpg)
+    #imgFilter(grayImg, 0)
+    frame1 = grayImg.crop(((0, 0, 10, 10)))
+    frame1.save(time_stamp + '_1.png')
+    frame2 = grayImg.crop(((10, 0, 20, 10)))
+    frame2.save(time_stamp + '_2.png')
+    frame3 = grayImg.crop(((20, 0, 30, 10)))
+    frame3.save(time_stamp + '_3.png')
+    frame4 = grayImg.crop(((30, 0, 40, 10)))
+    frame4.save(time_stamp + '_4.png')
+
+    readPic(time_stamp + '_1.png')
+    readPic(time_stamp + '_2.png')
+    readPic(time_stamp + '_3.png')
+    readPic(time_stamp + '_4.png')
