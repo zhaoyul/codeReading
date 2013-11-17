@@ -75,13 +75,19 @@ def my_image_similarity(filepath1, filepath2):
     return counter
 
 
-def getWeizhangInfo(stateid, plateNo, license, verifyCode):
+def getWeizhangInfo(stateid, plateNo, license):
     s = requests.Session()
     r = s.get("http://218.58.65.23/select/WZ.asp")
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
     im = Image.open(StringIO(yzr.content))
 
-    payload = {'stateid':'B','hphm':'7f128', 'hpzl':'02', 'jzh':'0477', 'yam':'L3EM', 'image.x':'-583', 'image.y':'-374'}
+    im.show()
+
+    imageList = cutPictures(im)
+    cdoeText = readPic(imageList)
+
+
+    payload = {'stateid':'B','hphm':'7f128', 'hpzl':'02', 'jzh':'0477', 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
     r.encoding='gb2312'
     print r.text
@@ -89,27 +95,24 @@ def getWeizhangInfo(stateid, plateNo, license, verifyCode):
 
 def cutPictures(img):
     grayImg = img.convert('L').point(lambda i: i > 128 and 255)
-    grayImg.save(time_stamp_jpg)
     frame1 = grayImg.crop(((0, 0, 10, 10)))
-    frame1.save(time_stamp + '_1.png')
     frame2 = grayImg.crop(((10, 0, 20, 10)))
-    frame2.save(time_stamp + '_2.png')
     frame3 = grayImg.crop(((20, 0, 30, 10)))
-    frame3.save(time_stamp + '_3.png')
     frame4 = grayImg.crop(((30, 0, 40, 10)))
-    frame4.save(time_stamp + '_4.png')
     imageList = [frame1, frame2, frame3, frame4]
     return imageList
 
 
-for i in range(1):
-    time.sleep(1)
-    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
-    time_stamp_jpg = time_stamp + '.jpg'
-    urllib.urlretrieve("http://218.58.65.23/select/checkcode.asp", time_stamp_jpg)
-    shutil.copy(time_stamp_jpg, time_stamp + 'origin.png')
+#for i in range(1):
+#    time.sleep(1)
+#    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
+#    time_stamp_jpg = time_stamp + '.jpg'
+#    urllib.urlretrieve("http://218.58.65.23/select/checkcode.asp", time_stamp_jpg)
+#    shutil.copy(time_stamp_jpg, time_stamp + 'origin.png')
+#
+#    img = Image.open(time_stamp_jpg)
 
-    img = Image.open(time_stamp_jpg)
-    imageList = cutPictures(img)
+if (__name__ == '__main__'):
+    getWeizhangInfo('B', '7f128', '0477')
 
-    text = readPic(imageList)
+
