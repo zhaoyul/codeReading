@@ -1,10 +1,10 @@
 __author__ = 'zhaoyuli'
 import urllib
 import time
-import datetime
 import Image
-import cv2
 import shutil
+from StringIO import StringIO
+import requests
 
 
 picDict = {'0': '0.png',
@@ -60,6 +60,9 @@ def readPic(imageList):
                 currentMax = temp
                 theKey = key
         print theKey
+        code = code + theKey
+    print code
+    return code
 
 
 def my_image_similarity(filepath1, filepath2):
@@ -72,6 +75,17 @@ def my_image_similarity(filepath1, filepath2):
 
     return counter
 
+
+def getWeizhangInfo(dict):
+    s = requests.Session()
+    r = s.get("http://218.58.65.23/select/WZ.asp")
+    yzr=s.get('http://218.58.65.23/select/checkcode.asp')
+    im = Image.open(StringIO(yzr.content))
+
+    payload = {'stateid':'B','hphm':'7f128', 'hpzl':'02', 'jzh':'0477', 'yam':'L3EM', 'image.x':'-583', 'image.y':'-374'}
+    r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
+    r.encoding='gb2312'
+    print r.text
 
 
 for i in range(1):
