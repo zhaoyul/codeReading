@@ -1,9 +1,38 @@
+ # -*- coding: utf-8 -*-
 __author__ = 'zhaoyuli'
 import Image
 from StringIO import StringIO
 import requests
 from bs4 import BeautifulSoup
 import codecs
+import web
+
+urls = (
+    '/(wzAPI)', 'hello'
+)
+
+app = web.application(urls, globals())
+
+class hello:
+    def GET(self, name):
+        web.header('Content-Type', ' text/html; charset=utf-8')
+        ret_str=''
+        user_data = web.input()
+        state_id = ''
+        plate_id = ''
+        license = ''
+        try:
+            state_id = user_data.stateid
+            plate_id = user_data.plateNo
+            license = user_data.license
+        except:
+            ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
+        ret_str = str(getWeizhangInfo(state_id, plate_id, license))
+        if ret_str == 'None':
+            ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
+        return ret_str
+
+
 
 
 picDict = {'0': Image.open('./codepic/0.png'),
@@ -80,29 +109,35 @@ def getWeizhangInfo(stateid, plateNo, license):
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
     im = Image.open(StringIO(yzr.content))
     # debug only
-    im.show()
+    #im.show()
 
     imageList = cutPictures(im)
     cdoeText = readPic(imageList)
 
 
-    payload = {'stateid':'B','hphm':'7f128', 'hpzl':'02', 'jzh':'0477', 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
+    payload = {'stateid':stateid,'hphm':plateNo, 'hpzl':'02', 'jzh':license, 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
     r.encoding='gb2312'
     #print r.text
     parsed_html = BeautifulSoup(r.text)
-    print(parsed_html.prettify())
+    html = parsed_html.prettify().encode('utf-8')
+    if r'请输入正确的验证码' in html:
+        return getWeizhangInfo(stateid, plateNo, license)
+
     #width="100%" align="center"  border="0" cellspacing="0" cellpadding="0"
     tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+    #tabulka = parsed_html.findNext()
+
+    return tabulka
 
     records = [] # store all of the records in this list
-    for row in tabulka.findAll('tr'):
-        col = row.findAll('td')
-        prvy = col[0].string.strip()
-        #druhy = col[1].string.strip()
-        record = '%s' % (prvy) # store the record with a ';' between prvy and druhy
-        records.append(record)
-        print records
+    #for row in tabulka.findAll('tr'):
+    #    col = row.findAll('td')
+    #    prvy = col[0].string.strip()
+    #    #druhy = col[1].string.strip()
+    #    record = '%s' % (prvy) # store the record with a ';' between prvy and druhy
+    #    records.append(record)
+    #    print records
 
     fl = codecs.open('output.txt', 'wb', 'utf8')
     line = ';'.join(records)
@@ -130,6 +165,6 @@ def cutPictures(img):
 #    img = Image.open(time_stamp_jpg)
 
 if (__name__ == '__main__'):
-    getWeizhangInfo('B', '7f128', '0477')
-
+    #getWeizhangInfo('B', '7f128', '0477')
+    app.run()
 
