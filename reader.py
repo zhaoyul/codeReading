@@ -1,10 +1,9 @@
 __author__ = 'zhaoyuli'
-import urllib
-import time
 import Image
-import shutil
 from StringIO import StringIO
 import requests
+from bs4 import BeautifulSoup
+import codecs
 
 
 picDict = {'0': Image.open('./codepic/0.png'),
@@ -58,7 +57,7 @@ def readPic(imageList):
             if temp > currentMax:
                 currentMax = temp
                 theKey = key
-        print theKey
+        #print theKey
         code = code + theKey
     print code
     return code
@@ -80,7 +79,7 @@ def getWeizhangInfo(stateid, plateNo, license):
     r = s.get("http://218.58.65.23/select/WZ.asp")
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
     im = Image.open(StringIO(yzr.content))
-
+    # debug only
     im.show()
 
     imageList = cutPictures(im)
@@ -90,7 +89,25 @@ def getWeizhangInfo(stateid, plateNo, license):
     payload = {'stateid':'B','hphm':'7f128', 'hpzl':'02', 'jzh':'0477', 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
     r.encoding='gb2312'
-    print r.text
+    #print r.text
+    parsed_html = BeautifulSoup(r.text)
+    print(parsed_html.prettify())
+    #width="100%" align="center"  border="0" cellspacing="0" cellpadding="0"
+    tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+
+    records = [] # store all of the records in this list
+    for row in tabulka.findAll('tr'):
+        col = row.findAll('td')
+        prvy = col[0].string.strip()
+        #druhy = col[1].string.strip()
+        record = '%s' % (prvy) # store the record with a ';' between prvy and druhy
+        records.append(record)
+        print records
+
+    fl = codecs.open('output.txt', 'wb', 'utf8')
+    line = ';'.join(records)
+    fl.write(line + u'\r\n')
+    fl.close()
 
 
 def cutPictures(img):
