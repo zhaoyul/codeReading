@@ -6,33 +6,33 @@ import requests
 from bs4 import BeautifulSoup
 import codecs
 import web
+import re
 
 urls = (
-    '/(wzAPI)', 'hello'
+    '/(wzAPI)', 'Hello'
 )
 
 app = web.application(urls, globals())
 
-class hello:
+
+class Hello:
     def GET(self, name):
         web.header('Content-Type', ' text/html; charset=utf-8')
         ret_str=''
         user_data = web.input()
         state_id = ''
         plate_id = ''
-        license = ''
+        license_id = ''
         try:
             state_id = user_data.stateid
             plate_id = user_data.plateNo
-            license = user_data.license
+            license_id = user_data.license
         except:
             ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
-        ret_str = str(getWeizhangInfo(state_id, plate_id, license))
+        ret_str = str(getWeizhangInfo(state_id, plate_id, license_id))
         if ret_str == 'None':
             ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         return ret_str
-
-
 
 
 picDict = {'0': Image.open('./codepic/0.png'),
@@ -74,8 +74,11 @@ picDict = {'0': Image.open('./codepic/0.png'),
 }
 
 
+def read_pics(imageList):
+    """
+    read characters from the 4 input images
+    """
 
-def readPic(imageList):
     code = ''
     for image in imageList:
         theKey = ''
@@ -92,9 +95,9 @@ def readPic(imageList):
     return code
 
 
-def my_image_similarity(filepath1, filepath2):
-    list1 = list(filepath1.getdata())
-    list2 = list(filepath2.getdata())
+def my_image_similarity(image, characterImage):
+    list1 = list(image.getdata())
+    list2 = list(characterImage.getdata())
     counter = 0;
     for i in range(100):
         if list1[i] == list2[i]:
@@ -112,7 +115,7 @@ def getWeizhangInfo(stateid, plateNo, license):
     #im.show()
 
     imageList = cutPictures(im)
-    cdoeText = readPic(imageList)
+    cdoeText = read_pics(imageList)
 
 
     payload = {'stateid':stateid,'hphm':plateNo, 'hpzl':'02', 'jzh':license, 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
@@ -128,7 +131,19 @@ def getWeizhangInfo(stateid, plateNo, license):
     tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
     #tabulka = parsed_html.findNext()
 
-    return tabulka
+    rawTable = str(tabulka);
+    #replace images
+    processedTable, n = re.subn(r'<td.+?images.+?<\/td>','', rawTable)
+    #replace info
+    processedTable = re.sub(r'<br>.+</br>','',processedTable)
+    processedTable = re.sub(r'<center>.+</center>','',processedTable)
+
+
+    print rawTable
+    print '------------------------------'
+    print processedTable
+
+    return BeautifulSoup(processedTable)
 
     records = [] # store all of the records in this list
     #for row in tabulka.findAll('tr'):
