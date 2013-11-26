@@ -180,6 +180,7 @@ def cutPictures(img):
 #    img = Image.open(time_stamp_jpg)
 
 if (__name__ == '__main__'):
+    render = web.template.render('templates/')
     #getWeizhangInfo('B', '7f128', '0477')
     app.run()
 
