@@ -15,6 +15,9 @@ app = web.application(urls, globals())
 
 
 class Hello:
+    def __init__(self):
+        pass
+
     def GET(self, name):
         web.header('Content-Type', ' text/html; charset=utf-8')
         ret_str=''
@@ -28,7 +31,7 @@ class Hello:
             license_id = user_data.license
         except:
             ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
-        ret_str = str(getWeizhangInfo(state_id, plate_id, license_id))
+        ret_str = str(get_weizhang_info(state_id, plate_id, license_id))
         if ret_str == 'None':
             ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         return ret_str
@@ -80,16 +83,16 @@ def read_pics(imageList):
 
     code = ''
     for image in imageList:
-        theKey = ''
-        currentMax = 0
+        the_key = ''
+        current_max = 0
         for key, picName in picDict.iteritems():
             #print key
             temp = my_image_similarity(image, picName)
-            if temp > currentMax:
-                currentMax = temp
-                theKey = key
+            if temp > current_max:
+                current_max = temp
+                the_key = key
         #print theKey
-        code = code + theKey
+        code = code + the_key
     print code
     return code
 
@@ -98,14 +101,13 @@ def my_image_similarity(image, characterImage):
     list1 = list(image.getdata())
     list2 = list(characterImage.getdata())
     counter = 0;
-    for i in range(100):
+    for i in range(len(list1)):
         if list1[i] == list2[i]:
-            counter = counter + 1
-
+            counter += 1
     return counter
 
 
-def getWeizhangInfo(stateid, plateNo, license):
+def get_weizhang_info(stateid, plateNo, license):
     s = requests.Session()
     r = s.get("http://218.58.65.23/select/WZ.asp")
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
@@ -113,9 +115,8 @@ def getWeizhangInfo(stateid, plateNo, license):
     # debug only
     #im.show()
 
-    imageList = cutPictures(im)
+    imageList = cut_pictures(im)
     cdoeText = read_pics(imageList)
-
 
     payload = {'stateid':stateid,'hphm':plateNo, 'hpzl':'02', 'jzh':license, 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
@@ -124,11 +125,9 @@ def getWeizhangInfo(stateid, plateNo, license):
     parsed_html = BeautifulSoup(r.text)
     html = parsed_html.prettify().encode('utf-8')
     if r'请输入正确的验证码' in html:
-        return getWeizhangInfo(stateid, plateNo, license)
+        return get_weizhang_info(stateid, plateNo, license)
 
-    #width="100%" align="center"  border="0" cellspacing="0" cellpadding="0"
     tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
-    #tabulka = parsed_html.findNext()
 
     rawTable = str(tabulka);
     #replace images
@@ -140,8 +139,7 @@ def getWeizhangInfo(stateid, plateNo, license):
     return BeautifulSoup(processedTable)
 
 
-
-def cutPictures(img):
+def cut_pictures(img):
     grayImg = img.convert('L').point(lambda i: i > 128 and 255)
     frame1 = grayImg.crop(((0, 0, 10, 10)))
     frame2 = grayImg.crop(((10, 0, 20, 10)))
@@ -151,17 +149,7 @@ def cutPictures(img):
     return imageList
 
 
-#for i in range(1):
-#    time.sleep(1)
-#    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime())
-#    time_stamp_jpg = time_stamp + '.jpg'
-#    urllib.urlretrieve("http://218.58.65.23/select/checkcode.asp", time_stamp_jpg)
-#    shutil.copy(time_stamp_jpg, time_stamp + 'origin.png')
-#
-#    img = Image.open(time_stamp_jpg)
-
-if (__name__ == '__main__'):
-    render = web.template.render('templates/')
+if __name__ == '__main__':
     #getWeizhangInfo('B', '7f128', '0477')
     app.run()
 
