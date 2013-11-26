@@ -19,7 +19,7 @@ class Hello:
         pass
 
     def GET(self, name):
-        web.header('Content-Type', ' text/html; charset=utf-8')
+        web.header('Content-Type', 'text/html; charset=utf-8')
         ret_str=''
         user_data = web.input()
         state_id = ''
@@ -91,9 +91,8 @@ def read_pics(imageList):
             if temp > current_max:
                 current_max = temp
                 the_key = key
-        #print theKey
         code = code + the_key
-    print code
+    print r'验证码:' + code
     return code
 
 
@@ -107,7 +106,7 @@ def my_image_similarity(image, characterImage):
     return counter
 
 
-def get_weizhang_info(stateid, plateNo, license):
+def get_weizhang_info(state_id, plate_no, license_no):
     s = requests.Session()
     r = s.get("http://218.58.65.23/select/WZ.asp")
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
@@ -115,17 +114,17 @@ def get_weizhang_info(stateid, plateNo, license):
     # debug only
     #im.show()
 
-    imageList = cut_pictures(im)
-    cdoeText = read_pics(imageList)
+    image_list = cut_pictures(im)
+    cdoe_text = read_pics(image_list)
 
-    payload = {'stateid':stateid,'hphm':plateNo, 'hpzl':'02', 'jzh':license, 'yam':cdoeText, 'image.x':'-583', 'image.y':'-374'}
+    payload = {'stateid':state_id,'hphm':plate_no, 'hpzl':'02', 'jzh':license_no, 'yam':cdoe_text, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
     r.encoding='gb2312'
     #print r.text
     parsed_html = BeautifulSoup(r.text)
     html = parsed_html.prettify().encode('utf-8')
     if r'请输入正确的验证码' in html:
-        return get_weizhang_info(stateid, plateNo, license)
+        return get_weizhang_info(state_id, plate_no, license_no)
 
     tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
 
