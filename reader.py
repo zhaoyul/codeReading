@@ -4,7 +4,6 @@ import Image
 from StringIO import StringIO
 import requests
 from bs4 import BeautifulSoup
-import codecs
 import web
 import re
 
@@ -138,26 +137,8 @@ def getWeizhangInfo(stateid, plateNo, license):
     processedTable = re.sub(r'<br>.+</br>','',processedTable)
     processedTable = re.sub(r'<center>.+</center>','',processedTable)
 
-
-    print rawTable
-    print '------------------------------'
-    print processedTable
-
     return BeautifulSoup(processedTable)
 
-    records = [] # store all of the records in this list
-    #for row in tabulka.findAll('tr'):
-    #    col = row.findAll('td')
-    #    prvy = col[0].string.strip()
-    #    #druhy = col[1].string.strip()
-    #    record = '%s' % (prvy) # store the record with a ';' between prvy and druhy
-    #    records.append(record)
-    #    print records
-
-    fl = codecs.open('output.txt', 'wb', 'utf8')
-    line = ';'.join(records)
-    fl.write(line + u'\r\n')
-    fl.close()
 
 
 def cutPictures(img):
