@@ -7,6 +7,10 @@ from bs4 import BeautifulSoup
 import web
 import re
 
+"""
+测试方式：http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477
+"""
+
 urls = (
     '/(wzAPI)', 'Hello'
 )
@@ -76,13 +80,13 @@ picDict = {'0': Image.open('./codepic/0.png'),
 }
 
 
-def read_pics(imageList):
+def read_pics(image_list):
     """
     read characters from the 4 input images
     """
 
     code = ''
-    for image in imageList:
+    for image in image_list:
         the_key = ''
         current_max = 0
         for key, picName in picDict.iteritems():
@@ -96,10 +100,10 @@ def read_pics(imageList):
     return code
 
 
-def my_image_similarity(image, characterImage):
+def my_image_similarity(image, character_image):
     list1 = list(image.getdata())
-    list2 = list(characterImage.getdata())
-    counter = 0;
+    list2 = list(character_image.getdata())
+    counter = 0
     for i in range(len(list1)):
         if list1[i] == list2[i]:
             counter += 1
@@ -115,9 +119,9 @@ def get_weizhang_info(state_id, plate_no, license_no):
     #im.show()
 
     image_list = cut_pictures(im)
-    cdoe_text = read_pics(image_list)
+    code_text = read_pics(image_list)
 
-    payload = {'stateid':state_id,'hphm':plate_no, 'hpzl':'02', 'jzh':license_no, 'yam':cdoe_text, 'image.x':'-583', 'image.y':'-374'}
+    payload = {'stateid':state_id,'hphm':plate_no, 'hpzl':'02', 'jzh':license_no, 'yam':code_text, 'image.x':'-583', 'image.y':'-374'}
     r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
     r.encoding='gb2312'
     #print r.text
@@ -126,26 +130,26 @@ def get_weizhang_info(state_id, plate_no, license_no):
     if r'请输入正确的验证码' in html:
         return get_weizhang_info(state_id, plate_no, license_no)
 
-    tabulka = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+    data_table = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
 
-    rawTable = str(tabulka);
+    raw_table = str(data_table)
     #replace images
-    processedTable, n = re.subn(r'<td.+?images.+?<\/td>','', rawTable)
+    processed_table, n = re.subn(r'<td.+?images.+?<\/td>','', raw_table)
     #replace info
-    processedTable = re.sub(r'<br>.+</br>','',processedTable)
-    processedTable = re.sub(r'<center>.+</center>','',processedTable)
+    processed_table = re.sub(r'<br>.+</br>', '', processed_table)
+    processed_table = re.sub(r'<center>.+</center>', '',processed_table)
 
-    return BeautifulSoup(processedTable)
+    return BeautifulSoup(processed_table)
 
 
 def cut_pictures(img):
-    grayImg = img.convert('L').point(lambda i: i > 128 and 255)
-    frame1 = grayImg.crop(((0, 0, 10, 10)))
-    frame2 = grayImg.crop(((10, 0, 20, 10)))
-    frame3 = grayImg.crop(((20, 0, 30, 10)))
-    frame4 = grayImg.crop(((30, 0, 40, 10)))
-    imageList = [frame1, frame2, frame3, frame4]
-    return imageList
+    gray_img = img.convert('L').point(lambda i: i > 128 and 255)
+    frame1 = gray_img.crop(((0, 0, 10, 10)))
+    frame2 = gray_img.crop(((10, 0, 20, 10)))
+    frame3 = gray_img.crop(((20, 0, 30, 10)))
+    frame4 = gray_img.crop(((30, 0, 40, 10)))
+    image_list = [frame1, frame2, frame3, frame4]
+    return image_list
 
 
 if __name__ == '__main__':
