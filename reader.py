@@ -12,8 +12,21 @@ import re
 """
 
 urls = (
+    '/', 'index',
     '/(wzAPI)', 'Hello'
 )
+
+template_globals = {
+    "cookies": web.cookies,
+}
+
+
+class index:
+    def GET(self):
+        print web.cookies().get('state_id')
+        render = web.template.render('templates/', globals=template_globals, cache=False)
+        # name = 'Bob'
+        return render.query()
 
 app = web.application(urls, globals())
 
@@ -26,6 +39,7 @@ class Hello:
         web.header('Content-Type', 'text/html; charset=utf-8')
         ret_str=''
         user_data = web.input()
+        print user_data
         state_id = ''
         plate_id = ''
         license_id = ''
@@ -33,6 +47,9 @@ class Hello:
             state_id = user_data.stateid
             plate_id = user_data.plateNo
             license_id = user_data.license
+            web.setcookie('state_id', state_id, 3600)
+            web.setcookie('plate_id', plate_id, 3600)
+            web.setcookie('license_id', license_id, 3600)
         except:
             ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         ret_str = str(get_weizhang_info(state_id, plate_id, license_id))
@@ -116,7 +133,7 @@ def get_weizhang_info(state_id, plate_no, license_no):
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
     im = Image.open(StringIO(yzr.content))
     # debug only
-    #im.show()
+    im.show()
 
     image_list = cut_pictures(im)
     code_text = read_pics(image_list)
