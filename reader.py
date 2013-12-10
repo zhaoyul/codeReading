@@ -64,26 +64,13 @@ class Hello:
             # Find the specific table, rather than the whole one.
             data_table = parsed_html.find_all("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
 
-            raw_table = str(data_table[2])
-
-            #replace images
-            processed_table, n = re.subn(r'<td.+?images.+?<\/td>','', raw_table)
-            #replace info
-            processed_table = re.sub(r'<br>.+</br>', '', processed_table)
-            processed_table = re.sub(r'<center>.+</center>', '',processed_table)
-
-
+            if len(data_table) < 2:
+                return None
             rows = data_table[2].findAll('tr')
             for tr in rows:
                 cols = tr.findAll('td', {"class": "css"})
                 result_list.append([c.text for c in cols])
 
-                # if 'css' in cols[0]['class']:
-                # currency row
-                # seq_num, plate_num, time, location, reason, fee, score = [c.text for c in cols]
-                # print seq_num, plate_num, time, location, reason, fee, score
-                # fst_list.append((seq_num, plate_num, time, location, reason))
-                # sec_list.append((fee, score))
 
             weizhang_tables = parsed_html.find_all("table",  {"width":"95%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
             for weizhang_table in weizhang_tables:
@@ -93,7 +80,7 @@ class Hello:
                         result_list.append([c.text for c in cols])
 
 
-            return BeautifulSoup(processed_table)
+            return 'successful'
 
 
         web.header('Content-Type', 'text/html; charset=utf-8')
@@ -111,15 +98,13 @@ class Hello:
             web.setcookie('plate_id', plate_id, 3600000)
             web.setcookie('license_id', license_id, 3600000)
         except:
-            ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
+            ret_str = r"""输入格式错误，请重按照说明新输入"""
         ret_str = str(get_weizhang_info(state_id, plate_id, license_id))
         # ret_str = html_header + ret_str + html_ender
-        print ret_str
         if ret_str == 'None':
-            ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
-        # return ret_str
+            ret_str = r'输入格式错误，请重新按照说明输入'
+            return ret_str
         render = web.template.render('templates/', globals=template_globals, cache=False)
-        # name = 'Bob'
         return render.result(result_list)
 
 
