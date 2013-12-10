@@ -25,9 +25,6 @@ template_globals = {
     "cookies": web.cookies,
 }
 
-
-
-
 class index:
     def GET(self):
         print web.cookies().get('state_id')
@@ -155,7 +152,6 @@ picDict = {'0': Image.open('./codepic/0.png'),
            'Z': Image.open('./codepic/z.png')
 }
 
-
 def read_pics(image_list):
     """
     read characters from the 4 input images
@@ -184,10 +180,6 @@ def my_image_similarity(image, character_image):
         if list1[i] == list2[i]:
             counter += 1
     return counter
-
-
-
-
 
 def cut_pictures(img):
     gray_img = img.convert('L').point(lambda i: i > 128 and 255)
