@@ -45,7 +45,7 @@ class Hello:
         web.header('Content-Type', 'text/html; charset=utf-8')
         ret_str=''
         user_data = web.input()
-        print user_data
+        # print user_data
         state_id = ''
         plate_id = ''
         license_id = ''
@@ -53,13 +53,13 @@ class Hello:
             state_id = user_data.stateid
             plate_id = user_data.plateNo
             license_id = user_data.license
-            web.setcookie('state_id', state_id, 3600)
-            web.setcookie('plate_id', plate_id, 3600)
-            web.setcookie('license_id', license_id, 3600)
+            web.setcookie('state_id', state_id, 3600000)
+            web.setcookie('plate_id', plate_id, 3600000)
+            web.setcookie('license_id', license_id, 3600000)
         except:
             ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         ret_str = str(get_weizhang_info(state_id, plate_id, license_id))
-        ret_str = html_header + ret_str + html_ender
+        # ret_str = html_header + ret_str + html_ender
         print ret_str
         if ret_str == 'None':
             ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
@@ -154,15 +154,24 @@ def get_weizhang_info(state_id, plate_no, license_no):
     html = parsed_html.prettify().encode('utf-8')
     if r'请输入正确的验证码' in html:
         return get_weizhang_info(state_id, plate_no, license_no)
+    # Find the specific table, rather than the whole one.
+    data_table = parsed_html.find_all("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
 
-    data_table = parsed_html.find("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+    raw_table = str(data_table[2])
 
-    raw_table = str(data_table)
     #replace images
     processed_table, n = re.subn(r'<td.+?images.+?<\/td>','', raw_table)
     #replace info
     processed_table = re.sub(r'<br>.+</br>', '', processed_table)
     processed_table = re.sub(r'<center>.+</center>', '',processed_table)
+
+    rows = data_table[2].findAll('tr')
+    for tr in rows:
+        cols = tr.findAll('td', {"class": "css"})
+        # if 'css' in cols[0]['class']:
+        # currency row
+        seq_num, plate_num, time, location, reason, fee, score = [c.text for c in cols]
+        print seq_num, plate_num, time, location, reason
 
     return BeautifulSoup(processed_table)
 

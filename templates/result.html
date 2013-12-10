@@ -35,70 +35,82 @@
         a{ text-decoration:underline;}
     </style>
 </head>
-<body>
-<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
-    <tr>
-        <td width="37%"><span class="back"><strong>信 息 查 询</strong></span></td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                </tr>
-            </table></td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="98%">
-                <tr>
-                    <td background="../images/40.gif" width="95%">
-                        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
-                            <tr>
-                                <td class="css" width="6%"><div align="center">序 号</div></td>
-                                <td class="css" width="10%"><div align="center">车 牌</div></td>
-                                <td class="css" width="18%"><div align="center">时 间</div></td>
-                                <td class="css" width="18%"><div align="center">地 点</div></td>
-                                <td class="css" width="20%"><div align="center">原 因</div></td>
-                                <td class="css" width="5%"><div align="center">罚款金额</div></td>
-                                <td class="css" width="5%"><div align="center">扣 分</div></td>
-                            </tr>
-                        </table></td>
-                </tr>
-            </table></td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="95%">
-                <tr>
-                    <td bgcolor="#F4FFFF" class="back" colspan="4" height="22"><div align="ceneter"><font color="red">鲁B7f128</font> 当前没有符合条件的记录！</div>
-                        <div align="center"></div> <div align="center"></div> <div align="center"></div> <div align="center"></div> <div align="center"></div></td>
-                </tr>
-                <tr>
-                    <td height="4" width="11%">
-                        <table border="0" cellpadding="0" cellspacing="0" width="98%">
-                            <tr>
-                            </tr>
-                        </table></td>
-                </tr>
-            </table></td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="95%">
-                <tr>
-                    <td bgcolor="#F4FFFF" class="back" colspan="4" height="22">
-                        <br>
-                        </br></td>
-                </tr>
-                <tr>
-                    <td height="4" width="11%">
-                        <table border="0" cellpadding="0" cellspacing="0" width="98%">
-                            <tr>
-                            </tr>
-                        </table></td>
-                </tr>
-            </table></td>
-    </tr>
-</table>
+<body> <div class="parking-table">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td ><span class="back"><strong>信 息 查 询</strong></span></td>
+        </tr>
+        if 存在违章 then
+        <tr>
+            <td >
+
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                        <td class="css" width="6%"><div align="center">序 号</div></td>
+                        <td class="css" width="20%"><div align="center">车 牌</div></td>
+                        <td class="css" width="40%"><div align="center">时 间</div></td>
+                        <td class="css" width="30%"><div align="center">地 点</div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td >
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                        <td class="css" width="6%"><div align="center">序 号XXX</div></td>
+                        <td class="css" width="20%"><div align="center">车 牌XXX</div></td>
+                        <td class="css" width="40%"><div align="center">时 XXXXXX间</div></td>
+                        <td class="css" width="30%"><div align="center">地XXXX 点</div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <tr>
+            <td >
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+
+                        <td class="css" width=60%"><div align="center">原 因</div></td>
+                        <td class="css" width="20%"><div align="center">罚款金额</div></td>
+                        <td class="css" width="17%"><div align="center">扣 分</div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td >
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+
+                        <td class="css" width=60%"><div align="center">原XXXX 因</div></td>
+                        <td class="css" width="20%"><div align="center">罚款XXXX金额</div></td>
+                        <td class="css" width="17%"><div align="center">扣XXXX 分</div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        else
+
+        <tr>
+            <td >
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+
+                        <td class="css" width=80%"><div align="center">未查询到违章信息或XXXXXXXXXXX！</div></td>
+
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        endif
+    </table>
+
+    else
+</div>
 </body>
 </html>
