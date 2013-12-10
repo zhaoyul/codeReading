@@ -7,6 +7,11 @@ from bs4 import BeautifulSoup
 import web
 import re
 
+from style_config import html_ender
+from style_config import html_header
+
+
+
 """
 测试方式：http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477
 """
@@ -19,6 +24,7 @@ urls = (
 template_globals = {
     "cookies": web.cookies,
 }
+
 
 
 class index:
@@ -53,6 +59,8 @@ class Hello:
         except:
             ret_str = r'输入格式为:http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         ret_str = str(get_weizhang_info(state_id, plate_id, license_id))
+        ret_str = html_header + ret_str + html_ender
+        print ret_str
         if ret_str == 'None':
             ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
         return ret_str
@@ -133,7 +141,7 @@ def get_weizhang_info(state_id, plate_no, license_no):
     yzr=s.get('http://218.58.65.23/select/checkcode.asp')
     im = Image.open(StringIO(yzr.content))
     # debug only
-    im.show()
+    #im.show()
 
     image_list = cut_pictures(im)
     code_text = read_pics(image_list)
