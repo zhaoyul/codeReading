@@ -84,6 +84,15 @@ class Hello:
                 # print seq_num, plate_num, time, location, reason, fee, score
                 # fst_list.append((seq_num, plate_num, time, location, reason))
                 # sec_list.append((fee, score))
+
+            weizhang_tables = parsed_html.find_all("table",  {"width":"95%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+            for weizhang_table in weizhang_tables:
+                for weizhang_row in weizhang_table.find_all('tr'):
+                    cols = weizhang_row.findAll('td')
+                    if len(cols) == 7:
+                        result_list.append([c.text for c in cols])
+
+
             return BeautifulSoup(processed_table)
 
 
