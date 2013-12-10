@@ -27,6 +27,7 @@ template_globals = {
 
 
 
+
 class index:
     def GET(self):
         print web.cookies().get('state_id')
@@ -42,6 +43,53 @@ class Hello:
         pass
 
     def GET(self, name):
+        result_list = []
+
+        def get_weizhang_info(state_id, plate_no, license_no):
+            s = requests.Session()
+            r = s.get("http://218.58.65.23/select/WZ.asp")
+            yzr=s.get('http://218.58.65.23/select/checkcode.asp')
+            im = Image.open(StringIO(yzr.content))
+            # debug only
+            #im.show()
+
+            image_list = cut_pictures(im)
+            code_text = read_pics(image_list)
+
+            payload = {'stateid':state_id,'hphm':plate_no, 'hpzl':'02', 'jzh':license_no, 'yam':code_text, 'image.x':'-583', 'image.y':'-374'}
+            r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
+            r.encoding='gb2312'
+            #print r.text
+            parsed_html = BeautifulSoup(r.text)
+            html = parsed_html.prettify().encode('utf-8')
+            if r'请输入正确的验证码' in html:
+                return get_weizhang_info(state_id, plate_no, license_no)
+            # Find the specific table, rather than the whole one.
+            data_table = parsed_html.find_all("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+
+            raw_table = str(data_table[2])
+
+            #replace images
+            processed_table, n = re.subn(r'<td.+?images.+?<\/td>','', raw_table)
+            #replace info
+            processed_table = re.sub(r'<br>.+</br>', '', processed_table)
+            processed_table = re.sub(r'<center>.+</center>', '',processed_table)
+
+
+            rows = data_table[2].findAll('tr')
+            for tr in rows:
+                cols = tr.findAll('td', {"class": "css"})
+                result_list.append([c.text for c in cols])
+
+                # if 'css' in cols[0]['class']:
+                # currency row
+                # seq_num, plate_num, time, location, reason, fee, score = [c.text for c in cols]
+                # print seq_num, plate_num, time, location, reason, fee, score
+                # fst_list.append((seq_num, plate_num, time, location, reason))
+                # sec_list.append((fee, score))
+            return BeautifulSoup(processed_table)
+
+
         web.header('Content-Type', 'text/html; charset=utf-8')
         ret_str=''
         user_data = web.input()
@@ -63,7 +111,10 @@ class Hello:
         print ret_str
         if ret_str == 'None':
             ret_str = r'输入信息不正确,http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477'
-        return ret_str
+        # return ret_str
+        render = web.template.render('templates/', globals=template_globals, cache=False)
+        # name = 'Bob'
+        return render.result(result_list)
 
 
 picDict = {'0': Image.open('./codepic/0.png'),
@@ -135,45 +186,7 @@ def my_image_similarity(image, character_image):
     return counter
 
 
-def get_weizhang_info(state_id, plate_no, license_no):
-    s = requests.Session()
-    r = s.get("http://218.58.65.23/select/WZ.asp")
-    yzr=s.get('http://218.58.65.23/select/checkcode.asp')
-    im = Image.open(StringIO(yzr.content))
-    # debug only
-    #im.show()
 
-    image_list = cut_pictures(im)
-    code_text = read_pics(image_list)
-
-    payload = {'stateid':state_id,'hphm':plate_no, 'hpzl':'02', 'jzh':license_no, 'yam':code_text, 'image.x':'-583', 'image.y':'-374'}
-    r = s.post("http://218.58.65.23/select/WZ.asp",data=payload)
-    r.encoding='gb2312'
-    #print r.text
-    parsed_html = BeautifulSoup(r.text)
-    html = parsed_html.prettify().encode('utf-8')
-    if r'请输入正确的验证码' in html:
-        return get_weizhang_info(state_id, plate_no, license_no)
-    # Find the specific table, rather than the whole one.
-    data_table = parsed_html.find_all("table",  {"width":"100%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
-
-    raw_table = str(data_table[2])
-
-    #replace images
-    processed_table, n = re.subn(r'<td.+?images.+?<\/td>','', raw_table)
-    #replace info
-    processed_table = re.sub(r'<br>.+</br>', '', processed_table)
-    processed_table = re.sub(r'<center>.+</center>', '',processed_table)
-
-    rows = data_table[2].findAll('tr')
-    for tr in rows:
-        cols = tr.findAll('td', {"class": "css"})
-        # if 'css' in cols[0]['class']:
-        # currency row
-        seq_num, plate_num, time, location, reason, fee, score = [c.text for c in cols]
-        print seq_num, plate_num, time, location, reason
-
-    return BeautifulSoup(processed_table)
 
 
 def cut_pictures(img):
