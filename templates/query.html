@@ -44,11 +44,11 @@ a{ text-decoration:underline;}
       
       <tbody>
     <tr><td ><div align="left">车牌号首字母 </div></td>
-<td ><div align="left">鲁<input type="text" name="stateid" value="$cookies()">[格式：B]</div></td></tr>
+<td ><div align="left">鲁<input type="text" name="stateid" value="$cookies().get('state_id')">[格式：B]</div></td></tr>
 <tr><td ><div align="left">车牌号数字 </div></td>
-<td ><div align="left"><input type="text" name="plateNo">[格式：12345]</div></td></tr>
+<td ><div align="left"><input type="text" name="plateNo" value="$cookies().get('plate_id')">[格式：12345]</div></td></tr>
 <tr><td ><div align="left">车辆识别代码后四位: </div></td>
-<td ><div align="left"><input type="text" name="license" >[车辆识别代码请查看机动车行驶证]</div></td></tr>
+<td ><div align="left"><input type="text" name="license" value="$cookies().get('license_id')">[车辆识别代码请查看机动车行驶证]</div></td></tr>
 <tr><td >
 <td ><input type="submit" value="提交查询" style="width:200px; height:50px" ></td></tr>
      </tbody>
