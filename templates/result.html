@@ -42,7 +42,7 @@ $def with (parm)
             <td ><span class="back"><strong>信 息 查 询</strong></span></td>
         </tr>
         $if len(parm) > 1:
-            $for item in parm:
+            $for item in parm[1:]:
                 <tr>
                     <td >
                         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -62,8 +62,8 @@ $def with (parm)
                             <tr>
 
                                 <td class="css" width=60%"><div align="center">$item[4]</div></td>
-                                <td class="css" width="20%"><div align="center">$item[5]</div></td>
-                                <td class="css" width="17%"><div align="center">$item[6]</div></td>
+                                <td class="css" width="20%"><div align="center">$item[5]元</div></td>
+                                <td class="css" width="17%"><div align="center">$item[6]分</div></td>
                             </tr>
                         </table>
                     </td>
@@ -75,7 +75,7 @@ $def with (parm)
                         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
 
-                                <td class="css" width=80%"><div align="center">未查到您的车辆的违章信！</div></td>
+                                <td class="css" width=80%"><div align="center">未查到您的车辆的违章信息！</div></td>
 
                             </tr>
                         </table>

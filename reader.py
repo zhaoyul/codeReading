@@ -5,12 +5,6 @@ from StringIO import StringIO
 import requests
 from bs4 import BeautifulSoup
 import web
-import re
-
-from style_config import html_ender
-from style_config import html_header
-
-
 
 """
 测试方式：http://127.0.0.1:8080/wzAPI?stateid=B&plateNo=7f128&license=0477
@@ -29,7 +23,6 @@ class index:
     def GET(self):
         print web.cookies().get('state_id')
         render = web.template.render('templates/', globals=template_globals, cache=False)
-        # name = 'Bob'
         return render.query()
 
 app = web.application(urls, globals())
@@ -72,7 +65,7 @@ class Hello:
                 result_list.append([c.text for c in cols])
 
 
-            weizhang_tables = parsed_html.find_all("table",  {"width":"95%", "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
+            weizhang_tables = parsed_html.find_all("table",  {"width":5, "align":"center", "border":"0", "cellspacing":"0", "cellpadding":0  })
             for weizhang_table in weizhang_tables:
                 for weizhang_row in weizhang_table.find_all('tr'):
                     cols = weizhang_row.findAll('td')
